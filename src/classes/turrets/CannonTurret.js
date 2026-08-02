@@ -314,8 +314,8 @@ export default class CannonTurret extends Phaser.GameObjects.Sprite {
 
     // Update stats
     this.damageOutput = this.damageObject[newLevel];
-    if (this.splashRadius && this.turretObject?.splashRadius) {
-      this.splashRadius = this.turretObject.splashRadius[newLevel];
+    if (this.splashRadius && turretObject?.splashRadius) {
+      this.splashRadius = turretObject.splashRadius[newLevel];
     }
 
     // Play upgrade sound
