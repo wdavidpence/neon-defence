@@ -325,8 +325,8 @@ export default class MissileTurret extends Phaser.GameObjects.Sprite {
 
     // Update stats
     this.damageOutput = this.damageObject[newLevel];
-    if (this.bulletSpeed && this.turretObject?.bulletSpeed) {
-      this.bulletSpeed = this.turretObject.bulletSpeed[newLevel];
+    if (this.bulletSpeed && turretObject?.bulletSpeed) {
+      this.bulletSpeed = turretObject.bulletSpeed[newLevel];
     }
 
     // Play upgrade sound
