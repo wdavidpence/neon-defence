@@ -35,6 +35,9 @@ import { soundManager } from "./audio/SoundManager";
 import { StartScreen } from "./ui/StartScreen";
 import { GameOverScreen } from "./ui/GameOverScreen";
 
+// ParticleSystem for visual effects
+import { ParticleSystem } from "./utils/ParticleSystem";
+
 const NEXT_WAVE_TIME = 30000;
 const difficulty = localStorage.getItem("difficulty") || "4";
 let hearts;
