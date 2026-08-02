@@ -48,20 +48,6 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     this.overlaySprite.setDepth(1); // Set the depth to ensure it appears above the base sprite
   }
 
-  preload() {
-    this.MapScene.load.image(
-      this.enemyName,
-      `assets/images/${this.sprite}.png`
-    );
-    this.MapScene.load.image("flame");
-    this.scene.load.audio("bulletsound", "assets/sounds/BulletSound.mp3");
-
-    this.scene.load.audio(
-      this.sound.name,
-      `assets/sounds/${this.sound.audio}.mp3`
-    );
-  }
-
   moveOnPath() {
     // DETECTS IF THE PATH IS A MOVEABLE TILEID
     const currentTile = this.map.getTilesWithinWorldXY(
@@ -110,11 +96,12 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
       this.setTint(0xff0000);
     }
     if (this.currentHealth <= 0) {
-      this.destroy();
+      // BUG FIX #2: Play sound BEFORE destroying (destroy() stops all sounds)
       this.deadSound.play({ volume: 0.2 });
       this.MapScene.resources += this.resources;
       this.MapScene.score += this.resources * this.MapScene.difficulty;
       this.MapScene.updateResources();
+      this.destroy();
     }
   }
 
@@ -156,7 +143,9 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
    */
   _activateDash() {
     const originalSpeed = this.speed;
-    this.setVelocityX(this.speed * 2); // Double speed
+    // BUG FIX #3: Preserve direction sign when restoring speed after dash
+    const directionX = this.body.velocity.x >= 0 ? 1 : -1;
+    this.setVelocityX(this.speed * 2);
 
     // Visual feedback - speed lines
     this._showDashEffect();
@@ -164,7 +153,7 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     // Return to normal speed after 1 second
     this.MapScene.time.delayedCall(1000, () => {
       if (this.active) {
-        this.setVelocityX(originalSpeed);
+        this.setVelocityX(originalSpeed * directionX);
       }
     });
   }
@@ -267,6 +256,8 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
     if (this.y < 100) {
       this.MapScene.takeHeart();
       this.destroy();
+      // BUG FIX #4: Return early to prevent updates on destroyed enemy
+      return;
     }
   }
 
@@ -347,7 +338,9 @@ export default class BaseEnemy extends Phaser.Physics.Arcade.Sprite {
       alpha: 0,
       duration: 300,
       ease: "Power2",
-      onComplete: () => explosion.destroy(),
+      onComplete: () => {
+        explosion.destroy();
+      },
     });
 
     this.MapScene.turrets.getChildren().forEach((turret) => {
